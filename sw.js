@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mash-tracker-ar-v1';
+const CACHE_NAME = 'mash-tracker-ar-v2'; // قمنا بتحديث الإصدار v2
 const ASSETS = [
   './',
   './index.html',

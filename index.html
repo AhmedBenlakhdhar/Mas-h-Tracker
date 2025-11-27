@@ -3,55 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مؤقت المسح على الخفين</title>
+    <title>مؤقت المسح</title>
+    <!-- استدعاء خط عربي جميل (سيعمل عند وجود إنترنت، وسيعود للخط الافتراضي بدونه) -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; text-align: center; padding: 2rem; background: #f4f4f9; color: #333; }
-        .container { max-width: 400px; margin: 0 auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { margin-top: 0; color: #27ae60; }
-        p { color: #7f8c8d; }
-        #timer { font-size: 3rem; font-weight: bold; margin: 2rem 0; color: #2c3e50; direction: ltr; /* للأرقام */ }
-        button { background: #27ae60; color: white; border: none; padding: 1rem 2rem; font-size: 1.2rem; border-radius: 8px; cursor: pointer; width: 100%; font-family: inherit; font-weight: bold; }
-        button#reset { background: #c0392b; margin-top: 1rem; display: none; }
-        button:active { opacity: 0.9; }
+        :root {
+            --primary: #10b981; /* أخضر زمردي */
+            --primary-dark: #059669;
+            --danger: #ef4444;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+        }
+
+        body {
+            font-family: 'Tajawal', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .app-container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 380px;
+            padding: 2.5rem 2rem;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            text-align: center;
+            position: relative;
+        }
+
+        /* زر المساعدة */
+        .help-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: #e5e7eb;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .help-btn:hover { background: #d1d5db; color: var(--text-main); }
+
+        h1 { margin: 0 0 0.5rem; font-size: 1.8rem; color: var(--primary-dark); }
+        
+        /* التعليمات المختصرة */
+        .subtitle { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 2rem; line-height: 1.5; }
+
+        /* المؤقت */
+        .timer-box {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        #timer {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            direction: ltr; /* لضمان ظهور الأرقام بشكل صحيح */
+            line-height: 1;
+        }
+        .timer-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; display: block; }
+
+        /* الأزرار */
+        button.action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            font-family: inherit;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+            transition: transform 0.1s, background 0.2s;
+        }
+        button.action-btn:active { transform: scale(0.98); }
+        
+        button#resetBtn {
+            background: var(--danger);
+            box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+            display: none;
+        }
+
+        /* النافذة المنبثقة (Modal) */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 90%;
+            width: 320px;
+            text-align: right;
+        }
+        .modal h2 { margin-top: 0; color: var(--primary-dark); }
+        .modal p { color: var(--text-muted); line-height: 1.6; }
+        .close-modal {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* حالة انتهاء الوقت */
+        .time-up { color: var(--danger) !important; font-size: 2.5rem !important; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>المسح على الخفين</h1>
-        <p>متابعة مدة صلاحية المسح (يوم وليلة)</p>
+
+    <div class="app-container">
+        <!-- زر المساعدة -->
+        <button class="help-btn" onclick="toggleModal(true)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+        </button>
+
+        <h1>مؤقت المسح</h1>
+        <p class="subtitle">اضغط "بدء" عند <strong>أول مسح</strong> بعد الحدث لبدء احتساب الـ 24 ساعة.</p>
         
-        <div id="timer">24:00:00</div>
+        <div class="timer-box">
+            <div id="timer">24:00:00</div>
+            <span class="timer-label">الوقت المتبقي</span>
+        </div>
         
-        <button id="startBtn" onclick="startTimer()">بدأتُ المسح الآن</button>
-        <button id="resetBtn" onclick="resetTimer()">إعادة تعيين / غسل الرجلين</button>
+        <button id="startBtn" class="action-btn" onclick="startTimer()">بدأتُ المسح الآن</button>
+        <button id="resetBtn" class="action-btn" onclick="resetTimer()">إعادة تعيين / غسل الرجلين</button>
+    </div>
+
+    <!-- نافذة المساعدة -->
+    <div class="modal-overlay" id="helpModal">
+        <div class="modal">
+            <h2>عن التطبيق</h2>
+            <p><strong>الهدف:</strong> ضبط مدة المسح على الخفين أو الجوارب للمقيم (يوم وليلة = 24 ساعة).</p>
+            <p><strong>متى يبدأ الوقت؟</strong> العبرة بأول مسحة بعد الحدث، وليس من وقت لبس الجوارب.</p>
+            <p><strong>عند انتهاء الوقت:</strong> يجب خلع الجوارب وغسل الرجلين في الوضوء التالي.</p>
+            <button class="close-modal" onclick="toggleModal(false)">حسناً، فهمت</button>
+        </div>
     </div>
 
     <script>
         let interval;
-        const DURATION = 24 * 60 * 60 * 1000; // 24 ساعة بالمللي ثانية
+        const DURATION = 24 * 60 * 60 * 1000; // 24 ساعة
+
+        // التحكم في نافذة المساعدة
+        function toggleModal(show) {
+            const modal = document.getElementById('helpModal');
+            if (show) modal.classList.add('open');
+            else modal.classList.remove('open');
+        }
+
+        // إغلاق النافذة عند الضغط خارجها
+        document.getElementById('helpModal').addEventListener('click', function(e) {
+            if (e.target === this) toggleModal(false);
+        });
 
         function updateDisplay(ms) {
+            const timerEl = document.getElementById('timer');
             if (ms <= 0) {
-                document.getElementById('timer').innerText = "انتهى الوقت!";
-                document.getElementById('timer').style.color = "#c0392b";
-                document.getElementById('timer').style.fontSize = "2.5rem";
+                timerEl.innerText = "انتهى الوقت!";
+                timerEl.classList.add('time-up');
+                document.querySelector('.timer-label').innerText = "يجب غسل الرجلين الآن";
                 return;
             }
+            timerEl.classList.remove('time-up');
+            document.querySelector('.timer-label').innerText = "الوقت المتبقي";
+            
             const totalSeconds = Math.floor(ms / 1000);
             const h = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
             const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
             const s = (totalSeconds % 60).toString().padStart(2, '0');
-            document.getElementById('timer').innerText = `${h}:${m}:${s}`;
-            document.getElementById('timer').style.color = "#2c3e50";
-            document.getElementById('timer').style.fontSize = "3rem";
+            timerEl.innerText = `${h}:${m}:${s}`;
         }
 
         function notifyUser() {
             if (Notification.permission === "granted") {
                 new Notification("انتهت مدة المسح", {
-                    body: "انقضت الـ 24 ساعة. يجب عليك غسل رجليك في الوضوء القادم.",
-                    icon: "https://via.placeholder.com/192/27ae60/ffffff?text=م", // أيقونة مؤقتة
-                    requireInteraction: true,
+                    body: "انقضت الـ 24 ساعة. يجب غسل الرجلين للوضوء القادم.",
+                    icon: "icon.png", 
                     lang: "ar"
                 });
             }
@@ -95,19 +260,20 @@
         }
 
         function resetTimer() {
+            if(!confirm("هل أنت متأكد من إعادة التعيين؟")) return;
             localStorage.removeItem('mashEndTime');
-            clearInterval(interval);
+            if (interval) clearInterval(interval);
             interval = null;
-            document.getElementById('timer').innerText = "24:00:00";
-            document.getElementById('timer').style.color = "#2c3e50";
+            updateDisplay(DURATION); // عرض 24:00:00
             document.getElementById('startBtn').style.display = 'block';
             document.getElementById('resetBtn').style.display = 'none';
         }
 
         // تهيئة التطبيق
+        // عرض الوقت الافتراضي عند التحميل لأول مرة
+        updateDisplay(DURATION); 
         checkTimer();
 
-        // تسجيل Service Worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
         }
