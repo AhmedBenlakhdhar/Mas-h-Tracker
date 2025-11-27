@@ -4,17 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مؤقت المسح</title>
-    <!-- استدعاء خط عربي جميل (سيعمل عند وجود إنترنت، وسيعود للخط الافتراضي بدونه) -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+	<link rel="manifest" href="manifest.json">
+	<meta name="theme-color" content="#10b981">
+	<link rel="apple-touch-icon" href="icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #10b981; /* أخضر زمردي */
+            --primary: #10b981;
             --primary-dark: #059669;
             --danger: #ef4444;
+            --warning: #f59e0b;
             --bg: #f3f4f6;
             --card-bg: #ffffff;
             --text-main: #1f2937;
             --text-muted: #6b7280;
+            --border: #e5e7eb;
         }
 
         body {
@@ -27,61 +31,114 @@
             justify-content: center;
             min-height: 100vh;
             padding: 1rem;
+            box-sizing: border-box;
         }
 
         .app-container {
             background: var(--card-bg);
             width: 100%;
             max-width: 380px;
-            padding: 2.5rem 2rem;
+            padding: 1.5rem;
             border-radius: 24px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.08);
             text-align: center;
             position: relative;
         }
 
-        /* زر المساعدة */
-        .help-btn {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            background: #e5e7eb;
+        /* Header Icons */
+        .top-icons {
+            display: flex;
+            justify-content: flex-start; /* الأيقونات تبدأ من اليمين */
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .icon-btn {
+            background: #f3f4f6;
             border: none;
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             cursor: pointer;
             color: var(--text-muted);
+            font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: 0.2s;
         }
-        .help-btn:hover { background: #d1d5db; color: var(--text-main); }
-
-        h1 { margin: 0 0 0.5rem; font-size: 1.8rem; color: var(--primary-dark); }
+        .icon-btn:hover { background: #e5e7eb; color: var(--text-main); }
         
-        /* التعليمات المختصرة */
-        .subtitle { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 2rem; line-height: 1.5; }
+        /* أيقونة الكتاب للأدلة */
+        .book-icon svg { width: 20px; height: 20px; stroke-width: 2; }
 
-        /* المؤقت */
+        h1 { margin: 0 0 0.5rem; font-size: 1.6rem; color: var(--primary-dark); }
+        
+        /* Mode Toggle */
+        .mode-toggle {
+            display: flex;
+            background: #f3f4f6;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        .mode-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: 0.3s;
+        }
+        .mode-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            font-weight: bold;
+        }
+
+        /* Timer Area */
         .timer-box {
             background: #f9fafb;
-            border: 2px solid #e5e7eb;
+            border: 2px solid var(--border);
             border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            padding: 1.5rem 1rem;
+            margin-bottom: 1rem;
         }
         #timer {
             font-size: 3.5rem;
             font-weight: 700;
             color: var(--text-main);
-            direction: ltr; /* لضمان ظهور الأرقام بشكل صحيح */
+            direction: ltr;
             line-height: 1;
         }
         .timer-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; display: block; }
+        
+        .timer-note {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            background: #eef2ff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
 
-        /* الأزرار */
+        .end-time-display {
+            font-size: 0.9rem;
+            color: var(--primary-dark);
+            background: #d1fae5;
+            padding: 0.6rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+            font-weight: bold;
+        }
+
+        /* Buttons */
         button.action-btn {
             background: var(--primary);
             color: white;
@@ -93,18 +150,33 @@
             width: 100%;
             font-family: inherit;
             font-weight: bold;
+            margin-bottom: 0.8rem;
             box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
-            transition: transform 0.1s, background 0.2s;
+            transition: transform 0.1s;
         }
         button.action-btn:active { transform: scale(0.98); }
         
+        button.secondary-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: 2px solid var(--border);
+            padding: 0.8rem;
+            font-size: 0.9rem;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            font-family: inherit;
+            font-weight: bold;
+        }
+
         button#resetBtn {
             background: var(--danger);
             box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
             display: none;
+            margin-bottom: 0;
         }
 
-        /* النافذة المنبثقة (Modal) */
+        /* Modals */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -116,94 +188,265 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s;
+            backdrop-filter: blur(2px);
         }
         .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        
         .modal {
             background: white;
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: 16px;
             max-width: 90%;
-            width: 320px;
+            width: 340px;
             text-align: right;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-height: 85vh;
+            overflow-y: auto; /* للسماح بالتمرير للنصوص الطويلة */
         }
-        .modal h2 { margin-top: 0; color: var(--primary-dark); }
-        .modal p { color: var(--text-muted); line-height: 1.6; }
-        .close-modal {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-            cursor: pointer;
-            width: 100%;
+        .modal h2 { margin-top: 0; color: var(--primary-dark); font-size: 1.3rem; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+        .modal p { color: var(--text-muted); line-height: 1.7; font-size: 0.95rem; margin-bottom: 1rem; }
+        
+        /* تنسيق النصوص الشرعية */
+        .hadith-box {
+            background: #f8fafc;
+            border-right: 3px solid var(--primary);
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #334155;
+            line-height: 1.8;
+        }
+        .hadith-source {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-weight: bold;
+        }
+        .section-title {
+            color: var(--primary-dark);
+            font-weight: bold;
+            margin-top: 1.2rem;
+            margin-bottom: 0.5rem;
+            display: block;
         }
 
-        /* حالة انتهاء الوقت */
+        input[type="datetime-local"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            margin: 0.5rem 0 1.5rem;
+            box-sizing: border-box;
+            background: #f9fafb;
+            direction: ltr;
+        }
+
+        .modal-actions { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
+        .btn-cancel { background: #f3f4f6; color: var(--text-main); border: none; flex: 1; padding: 0.8rem; border-radius: 8px; cursor: pointer; font-weight: bold;}
+        .btn-confirm { background: var(--primary); color: white; border: none; flex: 1; padding: 0.8rem; border-radius: 8px; cursor: pointer; font-weight: bold;}
+        .btn-danger { background: var(--danger); color: white; border: none; flex: 1; padding: 0.8rem; border-radius: 8px; cursor: pointer; font-weight: bold;}
+
         .time-up { color: var(--danger) !important; font-size: 2.5rem !important; }
+        .heart { color: #e11d48; }
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        <!-- زر المساعدة -->
-        <button class="help-btn" onclick="toggleModal(true)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-        </button>
+        <div class="top-icons">
+            <button class="icon-btn book-icon" onclick="toggleModal('evidenceModal', true)" title="أحكام المسح">
+                <!-- أيقونة كتاب -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </button>
+            <button class="icon-btn" onclick="toggleModal('aboutModal', true)" title="عن التطبيق">i</button>
+        </div>
 
         <h1>مؤقت المسح</h1>
-        <p class="subtitle">اضغط "بدء" عند <strong>أول مسح</strong> بعد الحدث لبدء احتساب الـ 24 ساعة.</p>
-        
-        <div class="timer-box">
-            <div id="timer">24:00:00</div>
-            <span class="timer-label">الوقت المتبقي</span>
+
+        <div class="mode-toggle" id="modeSelector">
+            <button class="mode-btn active" id="btnResident" onclick="setMode('resident')">مقيم</button>
+            <button class="mode-btn" id="btnTraveler" onclick="setMode('traveler')">مسافر</button>
         </div>
         
-        <button id="startBtn" class="action-btn" onclick="startTimer()">بدأتُ المسح الآن</button>
-        <button id="resetBtn" class="action-btn" onclick="resetTimer()">إعادة تعيين / غسل الرجلين</button>
+        <div class="timer-box">
+            <div id="timer">00:00:00</div>
+            <span class="timer-label">الوقت المتبقي</span>
+            <div class="timer-note" id="durationNote">المدة: 24 ساعة (يوم وليلة)</div>
+            <div id="endTimeDisplay" class="end-time-display"></div>
+        </div>
+        
+        <div id="controls">
+            <button id="startBtn" class="action-btn" onclick="startTimer()">بدأتُ المسح الآن</button>
+            <button id="customTimeBtn" class="secondary-btn" onclick="openCustomTimeModal()">نسيت البدء؟ حدد الوقت يدوياً</button>
+        </div>
+        
+        <button id="resetBtn" class="action-btn" onclick="toggleModal('resetModal', true)">إعادة تعيين / غسل الرجلين</button>
     </div>
 
-    <!-- نافذة المساعدة -->
-    <div class="modal-overlay" id="helpModal">
+    <!-- نافذة أحكام المسح (الأدلة) -->
+    <div class="modal-overlay" id="evidenceModal">
+        <div class="modal">
+            <h2>أحكام وأدلة المسح</h2>
+            
+            <span class="section-title">١. مشروعيته</span>
+            <div class="hadith-box">
+                "رأيت جرير بن عبد الله بال ثم توضأ ومسح على خفيه، فقيل له: تفعل هذا؟ قال: نعم، رأيت رسول الله ﷺ بال ثم توضأ ومسح على خفيه."
+                <span class="hadith-source">متفق عليه</span>
+            </div>
+
+            <span class="section-title">٢. مدة المسح</span>
+            <div class="hadith-box">
+                قال علي بن أبي طالب رضي الله عنه: "جعل رسول الله ﷺ ثلاثة أيام ولياليهن للمسافر، ويوماً وليلة للمقيم."
+                <span class="hadith-source">رواه مسلم</span>
+            </div>
+            <p><strong>التطبيق:</strong> يبدأ حساب الوقت من أول مسحة بعد الحدث، وليس من وقت لبس الجوارب.</p>
+
+            <span class="section-title">٣. محل المسح</span>
+            <div class="hadith-box">
+                قال علي رضي الله عنه: "لو كان الدين بالرأي لكان أسفل الخف أولى بالمسح من أعلاه، وقد رأيت رسول الله ﷺ يمسح على ظاهر خفيه."
+                <span class="hadith-source">رواه أبو داود</span>
+            </div>
+
+            <span class="section-title">٤. شروطه المختصرة</span>
+            <ul style="padding-right: 1.2rem; color: var(--text-muted); line-height: 1.6; margin-top:0;">
+                <li>أن يلبسهما على طهارة كاملة (وضوء).</li>
+                <li>أن يكونا ساترين لمحل الفرض (يغطيان الكعبين).</li>
+                <li>أن يكون ذلك في المدة المحددة.</li>
+            </ul>
+
+            <button class="btn-cancel" style="width:100%; margin-top:1rem;" onclick="toggleModal('evidenceModal', false)">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- نافذة عن التطبيق -->
+    <div class="modal-overlay" id="aboutModal">
         <div class="modal">
             <h2>عن التطبيق</h2>
-            <p><strong>الهدف:</strong> ضبط مدة المسح على الخفين أو الجوارب للمقيم (يوم وليلة = 24 ساعة).</p>
-            <p><strong>متى يبدأ الوقت؟</strong> العبرة بأول مسحة بعد الحدث، وليس من وقت لبس الجوارب.</p>
-            <p><strong>عند انتهاء الوقت:</strong> يجب خلع الجوارب وغسل الرجلين في الوضوء التالي.</p>
-            <button class="close-modal" onclick="toggleModal(false)">حسناً، فهمت</button>
+            <p>تطبيق خفيف يعمل بدون إنترنت لمساعدة المسلمين على ضبط مدة المسح على الخفين بدقة.</p>
+            <p>نسألكم <strong>الدعاء للمطور</strong> ولأهله بظهر الغيب <span class="heart">❤</span>.</p>
+            <button class="btn-confirm" style="width:100%" onclick="toggleModal('aboutModal', false)">اللهم تقبل</button>
+        </div>
+    </div>
+
+    <!-- نافذة تأكيد إعادة التعيين -->
+    <div class="modal-overlay" id="resetModal">
+        <div class="modal">
+            <h2>إعادة التعيين</h2>
+            <p>هل قمت بخلع الجوارب أو غسل رجليك؟ سيتم إيقاف المؤقت الحالي.</p>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="toggleModal('resetModal', false)">لا</button>
+                <button class="btn-danger" onclick="confirmReset()">نعم، أعد التعيين</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة الوقت المخصص -->
+    <div class="modal-overlay" id="customTimeModal">
+        <div class="modal">
+            <h2>تحديد وقت سابق</h2>
+            <p>اختر "أبكر وقت" تظن أنك مسحت فيه احتياطاً:</p>
+            <input type="datetime-local" id="manualTimeInput">
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="toggleModal('customTimeModal', false)">إلغاء</button>
+                <button class="btn-confirm" onclick="setCustomTime()">ضبط</button>
+            </div>
         </div>
     </div>
 
     <script>
         let interval;
-        const DURATION = 24 * 60 * 60 * 1000; // 24 ساعة
+        let currentMode = 'resident'; // 'resident' or 'traveler'
+        
+        // المدد بالمللي ثانية
+        const DURATION_RESIDENT = 24 * 60 * 60 * 1000;
+        const DURATION_TRAVELER = 72 * 60 * 60 * 1000;
+        const TEN_MINUTES_MS = 10 * 60 * 1000;
 
-        // التحكم في نافذة المساعدة
-        function toggleModal(show) {
-            const modal = document.getElementById('helpModal');
+        function getDuration() {
+            return currentMode === 'traveler' ? DURATION_TRAVELER : DURATION_RESIDENT;
+        }
+
+        function setMode(mode) {
+            if (interval && mode !== currentMode) {
+                alert("يرجى إعادة تعيين المؤقت أولاً لتغيير الوضع.");
+                return;
+            }
+
+            currentMode = mode;
+            document.getElementById('btnResident').className = mode === 'resident' ? 'mode-btn active' : 'mode-btn';
+            document.getElementById('btnTraveler').className = mode === 'traveler' ? 'mode-btn active' : 'mode-btn';
+            
+            const noteText = mode === 'resident' 
+                ? "المدة: 24 ساعة (يوم وليلة)" 
+                : "المدة: 72 ساعة (ثلاثة أيام بلياليها)";
+            document.getElementById('durationNote').innerText = noteText;
+
+            if (!interval) {
+                updateDisplay(getDuration());
+            }
+        }
+
+        function toggleModal(id, show) {
+            const modal = document.getElementById(id);
             if (show) modal.classList.add('open');
             else modal.classList.remove('open');
         }
 
-        // إغلاق النافذة عند الضغط خارجها
-        document.getElementById('helpModal').addEventListener('click', function(e) {
-            if (e.target === this) toggleModal(false);
+        document.querySelectorAll('.modal-overlay').forEach(el => {
+            el.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('open');
+            });
         });
+
+        function openCustomTimeModal() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('manualTimeInput').value = now.toISOString().slice(0, 16);
+            toggleModal('customTimeModal', true);
+        }
+
+        function setCustomTime() {
+            const inputVal = document.getElementById('manualTimeInput').value;
+            if (!inputVal) return;
+            const selectedTime = new Date(inputVal).getTime();
+            if (selectedTime > Date.now()) {
+                alert("الوقت في المستقبل!");
+                return;
+            }
+            toggleModal('customTimeModal', false);
+            startTimer(selectedTime);
+        }
+
+        function updateEndTimeDisplay(endTimeMs) {
+            const endDate = new Date(endTimeMs);
+            const options = { weekday: 'long', hour: '2-digit', minute: '2-digit', hour12: false };
+            const dateString = new Intl.DateTimeFormat('ar-u-nu-latn', options).format(endDate);
+            
+            const displayEl = document.getElementById('endTimeDisplay');
+            displayEl.style.display = 'block';
+            displayEl.innerHTML = `ينتهي: <span dir="ltr" style="display:inline-block">${dateString}</span>`;
+        }
 
         function updateDisplay(ms) {
             const timerEl = document.getElementById('timer');
+            const labelEl = document.querySelector('.timer-label');
+            
             if (ms <= 0) {
                 timerEl.innerText = "انتهى الوقت!";
                 timerEl.classList.add('time-up');
-                document.querySelector('.timer-label').innerText = "يجب غسل الرجلين الآن";
+                labelEl.innerText = "يجب غسل الرجلين الآن";
+                document.getElementById('endTimeDisplay').style.display = 'none';
                 return;
             }
+
             timerEl.classList.remove('time-up');
-            document.querySelector('.timer-label').innerText = "الوقت المتبقي";
+            labelEl.innerText = "الوقت المتبقي";
             
             const totalSeconds = Math.floor(ms / 1000);
             const h = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
@@ -212,66 +455,106 @@
             timerEl.innerText = `${h}:${m}:${s}`;
         }
 
-        function notifyUser() {
-            if (Notification.permission === "granted") {
-                new Notification("انتهت مدة المسح", {
-                    body: "انقضت الـ 24 ساعة. يجب غسل الرجلين للوضوء القادم.",
-                    icon: "icon.png", 
-                    lang: "ar"
-                });
-            }
-        }
-
         function checkTimer() {
-            const endTime = localStorage.getItem('mashEndTime');
-            if (!endTime) return;
+            const endTimeStr = localStorage.getItem('mashEndTime');
+            const savedMode = localStorage.getItem('mashMode');
+            
+            if (savedMode) setMode(savedMode);
 
+            if (!endTimeStr) {
+                updateDisplay(getDuration());
+                return;
+            }
+
+            const endTime = parseInt(endTimeStr);
             const now = Date.now();
-            const remaining = parseInt(endTime) - now;
+            const remaining = endTime - now;
 
-            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('controls').style.display = 'none';
+            document.getElementById('modeSelector').style.display = 'none';
             document.getElementById('resetBtn').style.display = 'block';
+
+            updateEndTimeDisplay(endTime);
 
             if (remaining <= 0) {
                 updateDisplay(0);
                 localStorage.removeItem('mashEndTime');
+                localStorage.removeItem('mashWarningSent'); // تنظيف حالة التحذير
             } else {
                 updateDisplay(remaining);
                 if (!interval) {
                     interval = setInterval(() => {
-                        const left = parseInt(endTime) - Date.now();
+                        const currentNow = Date.now();
+                        const left = parseInt(endTimeStr) - currentNow;
                         updateDisplay(left);
+                        
+                        // التحقق من تنبيه الـ 10 دقائق
+                        checkWarning(left);
+
                         if (left <= 0) {
                             clearInterval(interval);
                             updateDisplay(0);
-                            notifyUser();
+                            notifyUser("انتهت مدة المسح", "يجب غسل الرجلين للوضوء القادم.");
                             localStorage.removeItem('mashEndTime');
+                            localStorage.removeItem('mashWarningSent');
                         }
                     }, 1000);
                 }
             }
         }
 
-        function startTimer() {
+        function checkWarning(timeLeft) {
+            // إذا بقي أقل من 10 دقائق ولم يتم إرسال التحذير من قبل
+            if (timeLeft <= TEN_MINUTES_MS && timeLeft > 0) {
+                const warningSent = localStorage.getItem('mashWarningSent');
+                if (!warningSent) {
+                    notifyUser("تنبيه: اقترب انتهاء الوقت", "بقي 10 دقائق فقط على انتهاء مدة المسح.");
+                    localStorage.setItem('mashWarningSent', 'true');
+                }
+            }
+        }
+
+        function notifyUser(title, body) {
+            if (Notification.permission === "granted") {
+                new Notification(title, {
+                    body: body,
+                    icon: "icon.png",
+                    lang: "ar"
+                });
+            }
+        }
+
+        function startTimer(customStartTime = null) {
             Notification.requestPermission();
-            const endTime = Date.now() + DURATION;
+            const start = customStartTime || Date.now();
+            const duration = getDuration();
+            const endTime = start + duration;
+            
             localStorage.setItem('mashEndTime', endTime);
+            localStorage.setItem('mashMode', currentMode);
+            localStorage.removeItem('mashWarningSent'); // إعادة تعيين حالة التحذير
+            
             checkTimer();
         }
 
-        function resetTimer() {
-            if(!confirm("هل أنت متأكد من إعادة التعيين؟")) return;
+        function confirmReset() {
             localStorage.removeItem('mashEndTime');
+            localStorage.removeItem('mashWarningSent');
+            
             if (interval) clearInterval(interval);
             interval = null;
-            updateDisplay(DURATION); // عرض 24:00:00
-            document.getElementById('startBtn').style.display = 'block';
+            
+            updateDisplay(getDuration());
+            document.getElementById('endTimeDisplay').style.display = 'none';
+            
+            document.getElementById('controls').style.display = 'block';
+            document.getElementById('modeSelector').style.display = 'flex';
             document.getElementById('resetBtn').style.display = 'none';
+            
+            toggleModal('resetModal', false);
         }
 
-        // تهيئة التطبيق
-        // عرض الوقت الافتراضي عند التحميل لأول مرة
-        updateDisplay(DURATION); 
+        // Init
         checkTimer();
 
         if ('serviceWorker' in navigator) {
@@ -279,4 +562,5 @@
         }
     </script>
 </body>
+</html>
 </html>

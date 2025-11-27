@@ -1,8 +1,9 @@
-const CACHE_NAME = 'mash-tracker-ar-v2'; // قمنا بتحديث الإصدار v2
+const CACHE_NAME = 'mash-tracker-v3';
 const ASSETS = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './icon.png'
 ];
 
 self.addEventListener('install', (e) => {
