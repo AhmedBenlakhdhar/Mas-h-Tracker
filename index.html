@@ -78,7 +78,8 @@
         }
         .icon-btn:hover { background: #e5e7eb; color: var(--text-main); }
         
-        .book-icon svg { width: 20px; height: 20px; stroke-width: 2; }
+        /* General SVG sizing for header icons */
+        .icon-btn svg { width: 20px; height: 20px; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
         h1 { margin: 0 0 0.5rem; font-size: 1.6rem; color: var(--primary-dark); }
         
@@ -283,8 +284,6 @@
 
         .time-up { color: var(--danger) !important; font-size: 2.5rem !important; }
         .heart { color: #e11d48; }
-		
-		#about-button { font-size: 24px; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -297,7 +296,14 @@
                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                 </svg>
             </button>
-            <button id="about-button" class="icon-btn" onclick="toggleModal('aboutModal', true)" title="عن التطبيق">؟</button>
+            <button class="icon-btn" onclick="toggleModal('aboutModal', true)" title="عن التطبيق">
+                <!-- أيقونة المعلومات -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+            </button>
         </div>
 
         <h1>مؤقت المسح</h1>
