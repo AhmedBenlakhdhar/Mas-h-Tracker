@@ -440,19 +440,28 @@
             displayEl.innerHTML = `ينتهي: <span dir="ltr" style="display:inline-block">${dateString}</span>`;
         }
 
-        function updateDisplay(ms) {
+		function updateDisplay(ms) {
             const timerEl = document.getElementById('timer');
             const labelEl = document.querySelector('.timer-label');
             
             if (ms <= 0) {
                 timerEl.innerText = "انتهى الوقت!";
                 timerEl.classList.add('time-up');
-                labelEl.innerText = "يجب غسل الرجلين الآن";
+                
+                // Fix: Switch to RTL for Arabic text
+                timerEl.style.direction = "rtl"; 
+                
+                // Fix: Update instruction
+                labelEl.innerText = "يجب غسل الرجلين في الوضوء القادم"; 
+                
                 document.getElementById('endTimeDisplay').style.display = 'none';
                 return;
             }
 
             timerEl.classList.remove('time-up');
+            
+            // Fix: Ensure LTR for numbers
+            timerEl.style.direction = "ltr"; 
             labelEl.innerText = "الوقت المتبقي";
             
             const totalSeconds = Math.floor(ms / 1000);
