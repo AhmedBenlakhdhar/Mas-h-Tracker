@@ -11,7 +11,6 @@
 
 	<link rel="manifest" href="manifest.json">
 	<meta name="theme-color" content="#10b981">
-	<link rel="apple-touch-icon" href="icon.png">
 	
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
 	
@@ -41,6 +40,10 @@
             box-sizing: border-box;
         }
 
+        body button {
+            font-family: inherit !important;
+        }
+
         .app-container {
             background: var(--card-bg);
             width: 100%;
@@ -55,7 +58,7 @@
         /* Header Icons */
         .top-icons {
             display: flex;
-            justify-content: flex-start; /* الأيقونات تبدأ من اليمين */
+            justify-content: flex-start;
             gap: 0.5rem;
             margin-bottom: 1rem;
         }
@@ -75,7 +78,6 @@
         }
         .icon-btn:hover { background: #e5e7eb; color: var(--text-main); }
         
-        /* أيقونة الكتاب للأدلة */
         .book-icon svg { width: 20px; height: 20px; stroke-width: 2; }
 
         h1 { margin: 0 0 0.5rem; font-size: 1.6rem; color: var(--primary-dark); }
@@ -95,7 +97,6 @@
             padding: 8px;
             border-radius: 8px;
             cursor: pointer;
-            font-family: inherit;
             font-weight: 500;
             color: var(--text-muted);
             transition: 0.3s;
@@ -155,7 +156,6 @@
             border-radius: 12px;
             cursor: pointer;
             width: 100%;
-            font-family: inherit;
             font-weight: bold;
             margin-bottom: 0.8rem;
             box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
@@ -172,7 +172,6 @@
             border-radius: 12px;
             cursor: pointer;
             width: 100%;
-            font-family: inherit;
             font-weight: bold;
         }
 
@@ -207,13 +206,32 @@
             width: 340px;
             text-align: right;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            max-height: 85vh;
-            overflow-y: auto; /* للسماح بالتمرير للنصوص الطويلة */
+            max-height: 80vh; /* Reduced slightly to ensure fit */
+            
+            /* Flexbox for fixed header/footer logic */
+            display: flex;
+            flex-direction: column; 
         }
-        .modal h2 { margin-top: 0; color: var(--primary-dark); font-size: 1.3rem; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+
+        .modal h2 { 
+            margin-top: 0; 
+            color: var(--primary-dark); 
+            font-size: 1.3rem; 
+            margin-bottom: 0.5rem; 
+            border-bottom: 1px solid #eee; 
+            padding-bottom: 0.5rem;
+            flex-shrink: 0; /* Prevent header from shrinking */
+        }
+        
+        /* Scrollable content area */
+        .modal-scroll {
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-left: 5px; /* Space for scrollbar */
+        }
+
         .modal p { color: var(--text-muted); line-height: 1.7; font-size: 0.95rem; margin-bottom: 1rem; }
         
-        /* تنسيق النصوص الشرعية */
         .hadith-box {
             background: #f8fafc;
             border-right: 3px solid var(--primary);
@@ -243,7 +261,6 @@
             padding: 0.8rem;
             border: 2px solid var(--border);
             border-radius: 8px;
-            font-family: inherit;
             font-size: 1rem;
             margin: 0.5rem 0 1.5rem;
             box-sizing: border-box;
@@ -251,7 +268,15 @@
             direction: ltr;
         }
 
-        .modal-actions { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
+        .modal-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-shrink: 0; }
+        
+        /* Ensure the fixed exit button stays at bottom */
+        .modal-fixed-btn {
+            width: 100%; 
+            margin-top: 1rem; 
+            flex-shrink: 0;
+        }
+
         .btn-cancel { background: #f3f4f6; color: var(--text-main); border: none; flex: 1; padding: 0.8rem; border-radius: 8px; cursor: pointer; font-weight: bold;}
         .btn-confirm { background: var(--primary); color: white; border: none; flex: 1; padding: 0.8rem; border-radius: 8px; cursor: pointer; font-weight: bold;}
         .btn-danger { background: var(--danger); color: white; border: none; flex: 1; padding: 0.8rem; border-radius: 8px; cursor: pointer; font-weight: bold;}
@@ -265,7 +290,6 @@
     <div class="app-container">
         <div class="top-icons">
             <button class="icon-btn book-icon" onclick="toggleModal('evidenceModal', true)" title="أحكام المسح">
-                <!-- أيقونة كتاب -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
@@ -301,33 +325,35 @@
         <div class="modal">
             <h2>أحكام وأدلة المسح</h2>
             
-            <span class="section-title">١. مشروعيته</span>
-            <div class="hadith-box">
-                "رأيت جرير بن عبد الله بال ثم توضأ ومسح على خفيه، فقيل له: تفعل هذا؟ قال: نعم، رأيت رسول الله ﷺ بال ثم توضأ ومسح على خفيه."
-                <span class="hadith-source">متفق عليه</span>
+            <div class="modal-scroll">
+                <span class="section-title">١. مشروعيته</span>
+                <div class="hadith-box">
+                   عَنْ المُغِيرَةِ بْنِ شُعْبَةَ - رَضِيَ اللَّٰهُ عَنْهُ - أَنَّهُ قَالَ: كُنْتُ مَعَ النَّبِيِّ ﷺ فِي سَفَرٍ، فَقَالَ: يَا مُغِيرَةُ خُذِ الإِدَاوَةَ، فَأَخَذْتُهَا، فَانْطَلَقَ رَسُولُ اللَّٰهِ ﷺ حَتَّى تَوَارَى عَنِّي، فَقَضَى حَاجَتَهُ، وَعَلَيْهِ جُبَّةٌ شَأْمِيَّةٌ، فَذَهَبَ لِيُخْرِجَ يَدَهُ مِن كُمِّهَا فَضَاقَتْ، فَأَخْرَجَ يَدَهُ مِنْ أَسْفَلِهَا، فَصَبَبْتُ عَلَيْهِ، <strong>فَتَوَضَّأَ وُضُوءَهُ لِلصَّلَاةِ، وَمَسَحَ عَلَى خُفَّيْهِ، ثُمَّ صَلَّى</strong>.
+                    <span class="hadith-source">متفق عليه</span>
+                </div>
+
+                <span class="section-title">٢. مدة المسح</span>
+                <div class="hadith-box">
+                    عَنْ شُرَيْحِ بْنِ هَانِئٍ قَالَ: أَتَيْتُ عَائِشَةَ - رَضِيَ اللَّٰهُ عَنْهَا - أَسْأَلُهَا عَنْ الخُفَّيْنِ فَقَالَتْ: عَلَيْكَ بِابْنِ أَبِي طَالِبٍ فَاسْأَلْهُ فَإِنَّهُ كَانَ يُسَافِرُ مَعَ رَسُولِ اللَّٰهِ ﷺ فَأَتَيْتُهُ فَسَأَلْتُهُ فَقَالَ: <strong>جَعَلَ رَسُولُ اللَّٰهِ ﷺ ثَلاثَةَ أَيَّامٍ وَلَيَالِيهِنَّ لِلْمُسَافِرِ وَيَوْمًا وَلَيْلَةً لِلْمُقِيمِ.</strong>
+                    <span class="hadith-source">رواه مسلم</span>
+                </div>
+                <p><strong>التطبيق:</strong> يبدأ حساب الوقت من أول مسحة في وضوء بعد الحدث، وليس من وقت لبس الجوارب.</p>
+
+                <span class="section-title">٣. محل المسح</span>
+                <div class="hadith-box">
+                    عَنْ عَلِيٍّ بْنِ أَبِي طَالِبٍ - رَضِيَ اللَّٰهُ عَنْهُ - أَنَّهُ قَالَ: لَوْ كَانَ الدِّينُ بِالرَّأْيِ لَكَانَ أَسْفَلُ الخُفِّ أَوْلَى بِالْمَسْحِ مِنْ أَعْلَاهُ، <strong>وَقَدْ رَأَيْتُ رَسُولَ اللَّٰهِ ﷺ يَمْسَحُ عَلَى ظَاهِرِ خُفَّيْهِ.</strong>
+                    <span class="hadith-source">رواه أبو داود</span>
+                </div>
+
+                <span class="section-title">٤. شروطه المختصرة</span>
+                <ul style="padding-right: 1.2rem; color: var(--text-muted); line-height: 1.6; margin-top:0;">
+                    <li>أن يلبسهما على طهارة كاملة (وضوء).</li>
+                    <li>أن يكونا ساترين لمحل الفرض (يغطيان الكعبين).</li>
+                    <li>أن يكون ذلك في المدة المحددة.</li>
+                </ul>
             </div>
 
-            <span class="section-title">٢. مدة المسح</span>
-            <div class="hadith-box">
-                قال علي بن أبي طالب رضي الله عنه: "جعل رسول الله ﷺ ثلاثة أيام ولياليهن للمسافر، ويوماً وليلة للمقيم."
-                <span class="hadith-source">رواه مسلم</span>
-            </div>
-            <p><strong>التطبيق:</strong> يبدأ حساب الوقت من أول مسحة بعد الحدث، وليس من وقت لبس الجوارب.</p>
-
-            <span class="section-title">٣. محل المسح</span>
-            <div class="hadith-box">
-                قال علي رضي الله عنه: "لو كان الدين بالرأي لكان أسفل الخف أولى بالمسح من أعلاه، وقد رأيت رسول الله ﷺ يمسح على ظاهر خفيه."
-                <span class="hadith-source">رواه أبو داود</span>
-            </div>
-
-            <span class="section-title">٤. شروطه المختصرة</span>
-            <ul style="padding-right: 1.2rem; color: var(--text-muted); line-height: 1.6; margin-top:0;">
-                <li>أن يلبسهما على طهارة كاملة (وضوء).</li>
-                <li>أن يكونا ساترين لمحل الفرض (يغطيان الكعبين).</li>
-                <li>أن يكون ذلك في المدة المحددة.</li>
-            </ul>
-
-            <button class="btn-cancel" style="width:100%; margin-top:1rem;" onclick="toggleModal('evidenceModal', false)">إغلاق</button>
+            <button class="btn-cancel modal-fixed-btn" onclick="toggleModal('evidenceModal', false)">إغلاق</button>
         </div>
     </div>
 
@@ -335,9 +361,11 @@
     <div class="modal-overlay" id="aboutModal">
         <div class="modal">
             <h2>عن التطبيق</h2>
-            <p>تطبيق خفيف يعمل بدون إنترنت لمساعدة المسلمين على ضبط مدة المسح على الخفين بدقة.</p>
-            <p>نسألكم <strong>الدعاء للمطور</strong> ولأهله بظهر الغيب <span class="heart">❤</span>.</p>
-            <button class="btn-confirm" style="width:100%" onclick="toggleModal('aboutModal', false)">اللهم تقبل</button>
+            <div class="modal-scroll">
+                <p>تطبيق خفيف يعمل بدون إنترنت لمساعدة المسلمين على ضبط مدة المسح على الخفين بدقة.</p>
+                <p>نسألكم <strong>الدعاء للمطوّر</strong> ولأهله بظهر الغيب <span class="heart">❤</span>.</p>
+            </div>
+		    <button class="btn-confirm modal-fixed-btn" onclick="toggleModal('aboutModal', false)">إغلاق</button>
         </div>
     </div>
 
@@ -345,7 +373,9 @@
     <div class="modal-overlay" id="resetModal">
         <div class="modal">
             <h2>إعادة التعيين</h2>
-            <p>هل قمت بخلع الجوارب أو غسل رجليك؟ سيتم إيقاف المؤقت الحالي.</p>
+            <div class="modal-scroll">
+                <p>هل قمت بخلع الجوارب أو غسل رجليك؟ سيتم إيقاف المؤقت الحالي.</p>
+            </div>
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="toggleModal('resetModal', false)">لا</button>
                 <button class="btn-danger" onclick="confirmReset()">نعم، أعد التعيين</button>
@@ -357,8 +387,10 @@
     <div class="modal-overlay" id="customTimeModal">
         <div class="modal">
             <h2>تحديد وقت سابق</h2>
-            <p>اختر "أبكر وقت" تظن أنك مسحت فيه احتياطاً:</p>
-            <input type="datetime-local" id="manualTimeInput">
+            <div class="modal-scroll">
+                <p>اختر "أبكر وقت" تظن أنك مسحت فيه احتياطاً:</p>
+                <input type="datetime-local" id="manualTimeInput">
+            </div>
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="toggleModal('customTimeModal', false)">إلغاء</button>
                 <button class="btn-confirm" onclick="setCustomTime()">ضبط</button>
@@ -433,6 +465,7 @@
         function updateEndTimeDisplay(endTimeMs) {
             const endDate = new Date(endTimeMs);
             const options = { weekday: 'long', hour: '2-digit', minute: '2-digit', hour12: false };
+            // Ensure 1, 2, 3 not Arabic-Indic
             const dateString = new Intl.DateTimeFormat('ar-u-nu-latn', options).format(endDate);
             
             const displayEl = document.getElementById('endTimeDisplay');
@@ -495,7 +528,7 @@
             if (remaining <= 0) {
                 updateDisplay(0);
                 localStorage.removeItem('mashEndTime');
-                localStorage.removeItem('mashWarningSent'); // تنظيف حالة التحذير
+                localStorage.removeItem('mashWarningSent');
             } else {
                 updateDisplay(remaining);
                 if (!interval) {
@@ -504,7 +537,6 @@
                         const left = parseInt(endTimeStr) - currentNow;
                         updateDisplay(left);
                         
-                        // التحقق من تنبيه الـ 10 دقائق
                         checkWarning(left);
 
                         if (left <= 0) {
@@ -520,7 +552,6 @@
         }
 
         function checkWarning(timeLeft) {
-            // إذا بقي أقل من 10 دقائق ولم يتم إرسال التحذير من قبل
             if (timeLeft <= TEN_MINUTES_MS && timeLeft > 0) {
                 const warningSent = localStorage.getItem('mashWarningSent');
                 if (!warningSent) {
@@ -548,7 +579,7 @@
             
             localStorage.setItem('mashEndTime', endTime);
             localStorage.setItem('mashMode', currentMode);
-            localStorage.removeItem('mashWarningSent'); // إعادة تعيين حالة التحذير
+            localStorage.removeItem('mashWarningSent');
             
             checkTimer();
         }
@@ -578,5 +609,4 @@
         }
     </script>
 </body>
-</html>
 </html>
